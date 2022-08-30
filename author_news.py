@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import requests, json
 from time import time
 from flask import Flask , request
@@ -39,9 +40,9 @@ class first(Resource) :
         
         for i in authors_list :
             result[i] = stat_calculator(i, gk)
-
-        return str(result)
-
+        #return json.dumps(result, indent=4)
+        temp_res = json.dumps(result, cls=NpEncoder , indent=3)             #correcting the format
+        return json.loads(temp_res)
 
 def stat_calculator(author_name, gk) :
 
@@ -50,15 +51,15 @@ def stat_calculator(author_name, gk) :
 
     author_stats['author'] = author_name
     author_stats['number_of_all_news'] = gk.author.count()[author_name]
-    author_stats['positive_ratio'] = ( gk.get_group(author_name).Positive.sum() / author_stats['number_of_all_news'] ) * 100            #exception handling
-    author_stats['negative_ratio'] = ( gk.get_group(author_name).Negative.sum() / author_stats['number_of_all_news'] ) * 100            #exception handling
-    author_stats['neutral_ratio']  = ( gk.get_group(author_name).Neutral.sum()  / author_stats['number_of_all_news'] ) * 100            #exception handling
+    author_stats['positive_ratio'] = round((gk.get_group(author_name).Positive.sum() / author_stats['number_of_all_news'] * 100), 4)              #exception handling
+    author_stats['negative_ratio'] = round((gk.get_group(author_name).Negative.sum() / author_stats['number_of_all_news'] * 100), 4)              #exception handling
+    author_stats['neutral_ratio']  = round((gk.get_group(author_name).Neutral.sum()  / author_stats['number_of_all_news'] * 100), 4)              #exception handling
 
     author_stats['number_of_positive_news'] ,author_stats['number_of_negative_news'] ,author_stats['number_of_neutral_news'] = number_of_news(author_name , gk) 
 
-    author_stats['average_sentiment'] = author_stats['positive_ratio'] - author_stats['negative_ratio']
+    author_stats['average_sentiment'] = round(author_stats['positive_ratio'] - author_stats['negative_ratio'], 4)
 
-    return author_stats             #correcting the format
+    return author_stats             
 
 
         
@@ -75,6 +76,19 @@ def number_of_news(author_name , gk):
         if temp_df.loc[i].idxmax() == "Neutral" :
             neu += 1  
     return pos, neg, neu
+
+
+
+
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.rounding):
+            return round(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)
 
 
 app.run(host='0.0.0.0')
