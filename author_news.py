@@ -40,8 +40,8 @@ class first(Resource) :
         
         for i in authors_list :
             result[i] = stat_calculator(i, gk)
-        #return json.dumps(result, indent=4)
-        temp_res = json.dumps(result, cls=NpEncoder , indent=3)             #correcting the format
+
+        temp_res = json.dumps(result, cls=NpEncoder , indent=3)             
         return json.loads(temp_res)
 
 def stat_calculator(author_name, gk) :
