@@ -2,19 +2,19 @@ import pandas as pd
 import requests, json
 from time import time
 from flask import Flask , request
-from flask_restx import Api, Resource                # only working with flask==2.1.2 and Werkzeug==2.1.2
+from flask_restx import Api, Resource
 
 app = Flask(__name__)
 api = Api(app)
 
-@api.route('/myapp')
+@api.route('/stat_calc')
 class first(Resource) :
-    @api.doc(params={'period': {'description': 'One Day or One Week or One Month or Six Month (d/w/m/m6)', 'in': 'query', 'type': 'str'}})
-    @api.doc(params={'currency': {'description': 'currency name (e.x. bitcoin)', 'in': 'query', 'type': 'str'}})
-
+    @api.doc(params={'period': {'description': 'One Day or One Week or One Month or Six Month (d/w/m/m6)', 'in': 'query', 'type': 'str'},
+                     'currency': {'description': 'currency name (e.x. bitcoin)', 'in': 'query', 'type': 'str'}})
+    
     def get(self) :
-        period = (request.args.get('period'))
-        currency = (request.args.get('currency'))
+        period = (request.args.get('period'))                           #exception handling
+        currency = (request.args.get('currency'))                       #exception handling
         current_time = int(time())
         one_day = 86400
         result = {}
@@ -29,7 +29,7 @@ class first(Resource) :
             period = current_time - (6 * 30 * one_day)
 
         url = f"https://robonews.robofa.cscloud.ir/Robonews/v1/news/?category=Cryptocurrency&keywords={currency}&from={period}&to={current_time}"
-        r = requests.get(url)
+        r = requests.get(url)           #exception hadling
         
         df = pd.json_normalize(r.json()['data'])
         
@@ -50,15 +50,15 @@ def stat_calculator(author_name, gk) :
 
     author_stats['author'] = author_name
     author_stats['number_of_all_news'] = gk.author.count()[author_name]
-    author_stats['positive_ratio'] = ( gk.get_group(author_name).Positive.sum() / author_stats['number_of_all_news'] ) * 100
-    author_stats['negative_ratio'] = ( gk.get_group(author_name).Negative.sum() / author_stats['number_of_all_news'] ) * 100
-    author_stats['neutral_ratio']  = ( gk.get_group(author_name).Neutral.sum()  / author_stats['number_of_all_news'] ) * 100
+    author_stats['positive_ratio'] = ( gk.get_group(author_name).Positive.sum() / author_stats['number_of_all_news'] ) * 100            #exception handling
+    author_stats['negative_ratio'] = ( gk.get_group(author_name).Negative.sum() / author_stats['number_of_all_news'] ) * 100            #exception handling
+    author_stats['neutral_ratio']  = ( gk.get_group(author_name).Neutral.sum()  / author_stats['number_of_all_news'] ) * 100            #exception handling
 
     author_stats['number_of_positive_news'] ,author_stats['number_of_negative_news'] ,author_stats['number_of_neutral_news'] = number_of_news(author_name , gk) 
 
     author_stats['average_sentiment'] = author_stats['positive_ratio'] - author_stats['negative_ratio']
 
-    return author_stats
+    return author_stats             #correcting the format
 
 
         
