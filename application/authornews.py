@@ -1,7 +1,7 @@
 import pandas as pd
 import requests, json
 import datetime
-from flask import request
+from flask import request, current_app
 from flask_restx import Api, Resource, Namespace
 
 
@@ -13,9 +13,11 @@ class first(Resource) :
                      'period': {'description': 'One Day or One Week or One Month or Six Month (d/w/m/m6)', 'in': 'query', 'type': 'str'}})
     
     def get(self) :
+
+        period = (request.args.get('period'))                           
+        currency = (request.args.get('currency'))                       
+               
         
-        period = (request.args.get('period'))                           #exception handling
-        currency = (request.args.get('currency'))                       #exception handling
         current_time = int(datetime.datetime.now().timestamp())
         one_day = 86400
         result = {}
@@ -30,9 +32,22 @@ class first(Resource) :
             period = current_time - (6 * 30 * one_day)
 
         url = f"https://robonews.robofa.cscloud.ir/Robonews/v1/news/?category=Cryptocurrency&keywords={currency}&from={period}&to={current_time}"
-        r = requests.get(url)           #exception hadling
+        r = requests.get(url)           
         
+        if not r.ok :
+            current_app.logger.error("Unable to connect to robonews.robofa.cscloud.ir/Robonews/v1/news/")
+            return "unable to connect to robonews.robofa.cscloud.ir"
+
+        if r.json()['status'] != 200 or len(r.json()['data']) == 0 :
+            current_app.logger.error("Bad Request")
+            return "bad request"
+
+
+
         df = pd.json_normalize(r.json()['data'])
+
+        df['author'] = df["author"].fillna("unknown")                                               # handling None values in dataframe
+        df = df.fillna(0)
         
         gk = df.groupby('author')
         
@@ -41,24 +56,33 @@ class first(Resource) :
         for i in authors_list :
             result[i] = stat_calculator(i, gk)
         
-        sorting_df = pd.DataFrame.from_dict(result, orient='index')                                 #first turn resulting dictionary into a dataframe (used orient=index to make the author's names as index of our new dataframe) in order -->
+        sorting_df = pd.DataFrame.from_dict(result, orient='index')                                 # first turn resulting dictionary into a dataframe (used orient=index to make the author's names as index of our new dataframe) in order -->
         sorting_df = sorting_df.sort_values(by='number_of_all_news', ascending=False)               #-->to sort the output by column 'number_of_all_news' and then convert it again to json format in order to output it by swagger
         temp_res = sorting_df.to_json(orient='index')                                               
 
         return json.loads(temp_res)
 
-def stat_calculator(author_name, gk) :                                  # a function in order to calculate the values of columns of output table 
+def stat_calculator(author_name, gk) :                                                              # a function in order to calculate the values of columns of output table 
 
     author_stats = {'author' : None, 'number_of_all_news' : None, 'number_of_positive_news' : None, 'positive_ratio' : None, 'number_of_negative_news' : None, 
                   'negative_ratio' : None, 'number_of_neutral_news' : None,  'neutral_ratio' : None, 'average_sentiment' : None}
 
     author_stats['author'] = author_name
     author_stats['number_of_all_news'] = gk.author.count()[author_name]
-    author_stats['positive_ratio'] = round((gk.get_group(author_name).Positive.sum() / author_stats['number_of_all_news'] * 100), 4)              #exception handling
-    author_stats['negative_ratio'] = round((gk.get_group(author_name).Negative.sum() / author_stats['number_of_all_news'] * 100), 4)              #exception handling
-    author_stats['neutral_ratio']  = round((gk.get_group(author_name).Neutral.sum()  / author_stats['number_of_all_news'] * 100), 4)              #exception handling
+    try :
+        author_stats['positive_ratio'] = round((gk.get_group(author_name).Positive.sum() / author_stats['number_of_all_news'] * 100), 4)             
+    except : 
+        author_stats['positive_ratio'] = 0
+    try :        
+        author_stats['negative_ratio'] = round((gk.get_group(author_name).Negative.sum() / author_stats['number_of_all_news'] * 100), 4)             
+    except :    
+        author_stats['negative_ratio'] = 0
+    try :
+        author_stats['neutral_ratio']  = round((gk.get_group(author_name).Neutral.sum()  / author_stats['number_of_all_news'] * 100), 4)             
+    except :
+        author_stats['neutral_ratio'] = 0
 
-    author_stats['number_of_positive_news'] ,author_stats['number_of_negative_news'] ,author_stats['number_of_neutral_news'] = number_of_news(author_name , gk) 
+    author_stats['number_of_positive_news'], author_stats['number_of_negative_news'], author_stats['number_of_neutral_news'] = number_of_news(author_name, gk) 
 
     author_stats['average_sentiment'] = round(author_stats['positive_ratio'] - author_stats['negative_ratio'], 4)
 
@@ -82,7 +106,7 @@ def number_of_news(author_name , gk):                                   # anothe
 
 
 
-def day_func():                                     #this function is created to calculate the timestamp for today's 00:00 oclock in utc 
+def day_func():                                                         # this function is created to calculate the timestamp for today's 00:00 oclock in utc 
     now = datetime.datetime.now(datetime.timezone.utc)
     now = list(now.timetuple())
     now[3:] = [0,0,0]
