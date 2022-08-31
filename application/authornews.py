@@ -1,7 +1,6 @@
 import pandas as pd
 import requests, json
 import datetime
-from time import time
 from flask import request
 from flask_restx import Api, Resource, Namespace
 
@@ -14,9 +13,10 @@ class first(Resource) :
                      'period': {'description': 'One Day or One Week or One Month or Six Month (d/w/m/m6)', 'in': 'query', 'type': 'str'}})
     
     def get(self) :
+        
         period = (request.args.get('period'))                           #exception handling
         currency = (request.args.get('currency'))                       #exception handling
-        current_time = int(time())
+        current_time = int(datetime.datetime.now().timestamp())
         one_day = 86400
         result = {}
 
