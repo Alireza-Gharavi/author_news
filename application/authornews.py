@@ -6,12 +6,12 @@ from flask import request
 from flask_restx import Api, Resource, Namespace
 
 
-api = Namespace('Authornews-Api', description='authorews routes')
+api = Namespace('Authornews-Api', description='authornews routes')
 
 @api.route('/')
 class first(Resource) :
-    @api.doc(params={'period': {'description': 'One Day or One Week or One Month or Six Month (d/w/m/m6)', 'in': 'query', 'type': 'str'},
-                     'currency': {'description': 'currency name (e.x. bitcoin)', 'in': 'query', 'type': 'str'}})
+    @api.doc(params={'currency': {'description': 'currency name (e.x. bitcoin)', 'in': 'query', 'type': 'str'},
+                     'period': {'description': 'One Day or One Week or One Month or Six Month (d/w/m/m6)', 'in': 'query', 'type': 'str'}})
     
     def get(self) :
         period = (request.args.get('period'))                           #exception handling
@@ -40,8 +40,12 @@ class first(Resource) :
         
         for i in authors_list :
             result[i] = stat_calculator(i, gk)
+        
+        sorting_df = pd.DataFrame.from_dict(result, orient='index')
+        sorting_df = sorting_df.sort_values(by='number_of_all_news', ascending=False)
 
-        temp_res = json.dumps(result, cls=NpEncoder , indent=3)             
+        #return sorting_df.to_json()
+        temp_res = sorting_df.to_json(orient='index')#json.dumps(result, cls=NpEncoder , indent=3)     
         return json.loads(temp_res)
 
 def stat_calculator(author_name, gk) :
