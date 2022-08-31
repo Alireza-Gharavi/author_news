@@ -1,6 +1,6 @@
 import pandas as pd
-import numpy as np
 import requests, json
+import datetime
 from time import time
 from flask import request
 from flask_restx import Api, Resource, Namespace
@@ -21,7 +21,7 @@ class first(Resource) :
         result = {}
 
         if period == 'd' :
-            period = current_time - one_day 
+            period = day_func() 
         elif period == 'w' : 
             period = current_time - 7 * one_day
         elif period == 'm' :
@@ -41,14 +41,13 @@ class first(Resource) :
         for i in authors_list :
             result[i] = stat_calculator(i, gk)
         
-        sorting_df = pd.DataFrame.from_dict(result, orient='index')
-        sorting_df = sorting_df.sort_values(by='number_of_all_news', ascending=False)
+        sorting_df = pd.DataFrame.from_dict(result, orient='index')                                 #first turn resulting dictionary into a dataframe (used orient=index to make the author's names as index of our new dataframe) in order -->
+        sorting_df = sorting_df.sort_values(by='number_of_all_news', ascending=False)               #-->to sort the output by column 'number_of_all_news' and then convert it again to json format in order to output it by swagger
+        temp_res = sorting_df.to_json(orient='index')                                               
 
-        #return sorting_df.to_json()
-        temp_res = sorting_df.to_json(orient='index')#json.dumps(result, cls=NpEncoder , indent=3)     
         return json.loads(temp_res)
 
-def stat_calculator(author_name, gk) :
+def stat_calculator(author_name, gk) :                                  # a function in order to calculate the values of columns of output table 
 
     author_stats = {'author' : None, 'number_of_all_news' : None, 'number_of_positive_news' : None, 'positive_ratio' : None, 'number_of_negative_news' : None, 
                   'negative_ratio' : None, 'number_of_neutral_news' : None,  'neutral_ratio' : None, 'average_sentiment' : None}
@@ -68,7 +67,7 @@ def stat_calculator(author_name, gk) :
 
         
 
-def number_of_news(author_name , gk):
+def number_of_news(author_name , gk):                                   # another function to help stat_calculator to calculate what it have to
     pos, neg, neu = 0, 0, 0
     temp_df = gk.get_group(author_name)[['Positive', 'Negative', 'Neutral']] 
     
@@ -83,13 +82,10 @@ def number_of_news(author_name , gk):
 
 
 
-
-class NpEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.integer):
-            return int(obj)
-        if isinstance(obj, np.rounding):
-            return round(obj)
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return super(NpEncoder, self).default(obj)
+def day_func():                                     #this function is created to calculate the timestamp for today's 00:00 oclock in utc 
+    now = datetime.datetime.now(datetime.timezone.utc)
+    now = list(now.timetuple())
+    now[3:] = [0,0,0]
+    start_of_today = datetime.datetime(*now, tzinfo=datetime.timezone.utc)
+    start_of_today_timestamp = start_of_today.timestamp() 
+    return start_of_today_timestamp
