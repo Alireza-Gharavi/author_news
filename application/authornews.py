@@ -2,13 +2,13 @@ import pandas as pd
 import numpy as np
 import requests, json
 from time import time
-from flask import Flask , request
-from flask_restx import Api, Resource
+from flask import request
+from flask_restx import Api, Resource, Namespace
 
-app = Flask(__name__)
-api = Api(app)
 
-@api.route('/stat_calc')
+api = Namespace('Authornews-Api', description='authorews routes')
+
+@api.route('/')
 class first(Resource) :
     @api.doc(params={'period': {'description': 'One Day or One Week or One Month or Six Month (d/w/m/m6)', 'in': 'query', 'type': 'str'},
                      'currency': {'description': 'currency name (e.x. bitcoin)', 'in': 'query', 'type': 'str'}})
@@ -89,6 +89,3 @@ class NpEncoder(json.JSONEncoder):
         if isinstance(obj, np.ndarray):
             return obj.tolist()
         return super(NpEncoder, self).default(obj)
-
-
-app.run(host='0.0.0.0')
