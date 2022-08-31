@@ -88,4 +88,4 @@ def day_func():                                     #this function is created to
     now[3:] = [0,0,0]
     start_of_today = datetime.datetime(*now, tzinfo=datetime.timezone.utc)
     start_of_today_timestamp = start_of_today.timestamp() 
-    return start_of_today_timestamp
+    return int(start_of_today_timestamp)
