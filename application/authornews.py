@@ -49,13 +49,13 @@ class first(Resource) :
         try :
             df = pd.json_normalize(r.json()['data'])
 
-            df['author'] = df["author"].fillna("unknown")                                               # handling None values in dataframe
+            df['author'] = df["author"].fillna(df["provider"])                                               # handling None values in dataframe
             df = df.fillna(0)
 
             gk = df.groupby('author')
         
         except :
-            abort(422,{'error':'Unknown error occured in perprocessing data'})
+            abort(422,{'error':'Unknown error occured in preprocessing data'})
 
 
         authors_list =  list(gk.author.count().index)
