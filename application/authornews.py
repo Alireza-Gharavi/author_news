@@ -49,7 +49,8 @@ class first(Resource) :
         try :
             df = pd.json_normalize(r.json()['data'])
 
-            df['author'] = df["author"].fillna(df["provider"])                                               # handling None values in dataframe
+            df['author'] = df["author"].fillna(df["provider"])                                         # handling None values in dataframe
+            df['author'] = df["author"].fillna("unknown")
             df = df.fillna(0)
 
             gk = df.groupby('author')
