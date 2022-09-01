@@ -5,7 +5,7 @@ from flask import request, current_app, abort
 from flask_restx import Api, Resource, Namespace
 
 
-api = Namespace('Authornews-Api', description='authornews routes')
+api = Namespace('stat_calculator', description='authornews routes')
 
 @api.route('/')
 class first(Resource) :
@@ -32,7 +32,7 @@ class first(Resource) :
             period = current_time - (6 * 30 * one_day)
 
         url = "https://robonews.robofa.cscloud.ir/Robonews/v1/news/"
-        payload = {'category':'Cryptocurrency','keywords':currency,'from':period, 'to':current_time}
+        payload = {'category':'Cryptocurrency', 'keywords':currency, 'from':period, 'to':current_time}
 
         r = requests.get(url,params=payload)           
         
@@ -55,7 +55,7 @@ class first(Resource) :
             gk = df.groupby('author')
         
         except :
-            abort(422,{'error':'Unknown rror in perprocessing data'})
+            abort(422,{'error':'Unknown error occured in perprocessing data'})
 
 
         authors_list =  list(gk.author.count().index)
