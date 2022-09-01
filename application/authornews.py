@@ -1,7 +1,7 @@
 import pandas as pd
 import requests, json
 import datetime
-from flask import request, current_app
+from flask import request, current_app, abort
 from flask_restx import Api, Resource, Namespace
 
 
@@ -31,26 +31,33 @@ class first(Resource) :
         elif period == 'm6' :
             period = current_time - (6 * 30 * one_day)
 
-        url = f"https://robonews.robofa.cscloud.ir/Robonews/v1/news/?category=Cryptocurrency&keywords={currency}&from={period}&to={current_time}"
-        r = requests.get(url)           
+        url = "https://robonews.robofa.cscloud.ir/Robonews/v1/news/"
+        payload = {'category':'Cryptocurrency','keywords':currency,'from':period, 'to':current_time}
+
+        r = requests.get(url,params=payload)           
         
         if not r.ok :
             current_app.logger.error("Unable to connect to robonews.robofa.cscloud.ir/Robonews/v1/news/")
-            return "unable to connect to robonews.robofa.cscloud.ir"
+            abort(403,{"error":"Unable to connect to robonews.robofa.cscloud.ir/Robonews/v1/news/"})
+
 
         if r.json()['status'] != 200 or len(r.json()['data']) == 0 :
-            current_app.logger.error("Bad Request")
-            return "bad request"
+            current_app.logger.error("Bad Argument")
+            abort(400,{'error':'Bad Argument'})
 
 
+        try :
+            df = pd.json_normalize(r.json()['data'])
 
-        df = pd.json_normalize(r.json()['data'])
+            df['author'] = df["author"].fillna("unknown")                                               # handling None values in dataframe
+            df = df.fillna(0)
 
-        df['author'] = df["author"].fillna("unknown")                                               # handling None values in dataframe
-        df = df.fillna(0)
+            gk = df.groupby('author')
         
-        gk = df.groupby('author')
-        
+        except :
+            abort(422,{'error':'Unknown rror in perprocessing data'})
+
+
         authors_list =  list(gk.author.count().index)
         
         for i in authors_list :
