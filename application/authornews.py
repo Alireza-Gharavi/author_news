@@ -15,8 +15,8 @@ class first(Resource) :
     
     def get(self) :
 
-        period = (request.args.get('period'))                           
-        currency = (request.args.get('currency'))                       
+        period = (request.args.get('period')).lower()                
+        currency = (request.args.get('currency')).lower()                       
                
         
         current_time = int(datetime.datetime.now().timestamp())
