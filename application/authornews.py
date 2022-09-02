@@ -3,6 +3,7 @@ import requests, json
 import datetime
 from flask import request, current_app, abort
 from flask_restx import Api, Resource, Namespace
+from application.response import ResponseAPI
 
 
 api = Namespace('stat_calculator', description='authornews routes')
@@ -38,12 +39,12 @@ class first(Resource) :
         
         if not r.ok :
             current_app.logger.error("Unable to connect to robonews.robofa.cscloud.ir/Robonews/v1/news/")
-            abort(403,{"error":"Unable to connect to robonews.robofa.cscloud.ir/Robonews/v1/news/"})
+            return ResponseAPI.send(status_code=403, message="Unable to connect to robonews.robofa.cscloud.ir/Robonews/v1/news/")
 
 
         if r.json()['status'] != 200 or len(r.json()['data']) == 0 :
             current_app.logger.error("Bad Argument")
-            abort(400,{'error':'Bad Argument'})
+            return ResponseAPI.send(status_code=400, message="Bad Argument")
 
 
         try :
@@ -51,12 +52,13 @@ class first(Resource) :
 
             df['author'] = df["author"].fillna(df["provider"])                                         # handling None values in dataframe
             df['author'] = df["author"].replace('',"Unknown")
-            df = df.fillna(0)
+            df.fillna(0, inplace=True)
 
             gk = df.groupby('author')
         
         except :
-            abort(422,{'error':'Unknown error occured in preprocessing data'})
+            current_app.logger.exception('Unknown error occured in preprocessing data')
+            return ResponseAPI.send(status_code=422, message='Unknown error occured in preprocessing data')
 
 
         authors_list =  list(gk.author.count().index)
@@ -68,7 +70,7 @@ class first(Resource) :
         sorting_df = sorting_df.sort_values(by='number_of_all_news', ascending=False)               #-->to sort the output by column 'number_of_all_news' and then convert it again to json format in order to output it by swagger
         temp_res = sorting_df.to_json(orient='index')                                               
 
-        return json.loads(temp_res)
+        return ResponseAPI.send(status_code=200, message="done successfully", data=json.loads(temp_res))
 
 def stat_calculator(author_name, gk) :                                                              # a function in order to calculate the values of columns of output table 
 
