@@ -3,7 +3,7 @@ import requests, json
 import datetime
 from flask import request, current_app, abort
 from flask_restx import Api, Resource, Namespace
-from application.response import ResponseAPI
+from V1.response import ResponseAPI
 
 
 api = Namespace('stat_calculator', description='authornews routes')

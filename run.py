@@ -1,5 +1,5 @@
 from flask import Flask
-from application import blueprint as api
+from V1 import blueprint as api
 from flask_cors import CORS
 
 app = Flask("__name__")

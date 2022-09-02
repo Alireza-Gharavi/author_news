@@ -6,7 +6,7 @@ from flask import Blueprint
 blueprint = Blueprint('authornews',__name__)
 
 
-from application.authornews import api as authnews 
+from V1.authornews import api as authnews 
 
 
 api = Api(blueprint,
