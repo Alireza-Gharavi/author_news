@@ -14,7 +14,7 @@ class first(Resource) :
                      'period': {'description': 'One Day or One Week or One Month or Six Month (d/w/m/m6)', 'in': 'query', 'type': 'str'}})
     
     def get(self) :
-
+        # Anbaee : Please add exception handling for these parametrs
         period = (request.args.get('period')).lower()                
         currency = (request.args.get('currency')).lower()                       
                
@@ -34,7 +34,7 @@ class first(Resource) :
 
         url = "https://robonews.robofa.cscloud.ir/Robonews/v1/news/"
         payload = {'category':'Cryptocurrency', 'keywords':currency, 'from':period, 'to':current_time}
-
+        
         r = requests.get(url,params=payload)           
         
         if not r.ok :
@@ -73,6 +73,8 @@ class first(Resource) :
         return ResponseAPI.send(status_code=200, message="done successfully", data=json.loads(temp_res))
 
 def stat_calculator(author_name, gk) :                                                              # a function in order to calculate the values of columns of output table 
+
+# Anbaee : Multiple groupby causes your code responds slowly.
 
     author_stats = {'author' : None, 'number_of_all_news' : None, 'number_of_positive_news' : None, 'positive_ratio' : None, 'number_of_negative_news' : None, 
                   'negative_ratio' : None, 'number_of_neutral_news' : None,  'neutral_ratio' : None, 'average_sentiment' : None}
