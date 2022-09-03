@@ -1,8 +1,8 @@
 import pandas as pd
 import requests, json
 import datetime
-from flask import request, current_app, abort
-from flask_restx import Api, Resource, Namespace
+from flask import request, current_app
+from flask_restx import Resource, Namespace
 from V1.response import ResponseAPI
 
 
@@ -44,7 +44,7 @@ class first(Resource) :
 
         if r.json()['status'] != 200 or len(r.json()['data']) == 0 :
             current_app.logger.error("Bad Argument")
-            return ResponseAPI.send(status_code=400, message="Bad Argument")
+            return ResponseAPI.send(status_code=400, message="Bad Argument or nothing published since then")
 
 
         try :
