@@ -42,10 +42,12 @@ class first(Resource) :
             return ResponseAPI.send(status_code=403, message="Unable to connect to robonews.robofa.cscloud.ir/Robonews/v1/news/")
 
 
-        if r.json()['status'] != 200 or len(r.json()['data']) == 0 :
+        if r.json()['status'] != 200 :
             current_app.logger.error("Bad Argument")
-            return ResponseAPI.send(status_code=400, message="Bad Argument or nothing published since then")
-
+            return ResponseAPI.send(status_code=400, message="Bad Argument")
+        if len(r.json()['data']) == 0 :
+            current_app.logger.error("no data has been received")
+            return ResponseAPI.send(status_code=400, message='Bad Argument or nothing has been published since then')
 
         try :
             df = pd.json_normalize(r.json()['data'])
@@ -74,23 +76,24 @@ class first(Resource) :
 
 def stat_calculator(author_name, gk) :                                                              # a function in order to calculate the values of columns of output table 
 
-# Anbaee : Multiple groupby causes your code responds slowly.
+# Anbaee : Multiple groupby causes your code responds slowly.  ==>  solved
 
     author_stats = {'author' : None, 'number_of_all_news' : None, 'number_of_positive_news' : None, 'positive_ratio' : None, 'number_of_negative_news' : None, 
                   'negative_ratio' : None, 'number_of_neutral_news' : None,  'neutral_ratio' : None, 'average_sentiment' : None}
 
     author_stats['author'] = author_name
     author_stats['number_of_all_news'] = gk.author.count()[author_name]
+    author_name_grouped = gk.get_group(author_name)
     try :
-        author_stats['positive_ratio'] = round((gk.get_group(author_name).Positive.sum() / author_stats['number_of_all_news'] * 100), 4)             
+        author_stats['positive_ratio'] = round((author_name_grouped.Positive.sum() / author_stats['number_of_all_news'] * 100), 4)             
     except : 
         author_stats['positive_ratio'] = 0
     try :        
-        author_stats['negative_ratio'] = round((gk.get_group(author_name).Negative.sum() / author_stats['number_of_all_news'] * 100), 4)             
+        author_stats['negative_ratio'] = round((author_name_grouped.Negative.sum() / author_stats['number_of_all_news'] * 100), 4)             
     except :    
         author_stats['negative_ratio'] = 0
     try :
-        author_stats['neutral_ratio']  = round((gk.get_group(author_name).Neutral.sum()  / author_stats['number_of_all_news'] * 100), 4)             
+        author_stats['neutral_ratio']  = round((author_name_grouped.Neutral.sum()  / author_stats['number_of_all_news'] * 100), 4)             
     except :
         author_stats['neutral_ratio'] = 0
 
