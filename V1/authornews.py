@@ -40,8 +40,12 @@ class first(Resource) :
         url = "https://robonews.robofa.cscloud.ir/Robonews/v1/news/"
         payload = {'category':'Cryptocurrency', 'keywords':currency, 'from':period, 'to':current_time}
         
-        r = requests.get(url,params=payload)           
-        
+        try :
+            r = requests.get(url,params=payload)           
+        except :
+            current_app.logger.error("can't establish connection to robonews.rofa.cscloud.ir")
+            return ResponseAPI.send(status_code=403,message="can't establish connection to robonews.rofa.cscloud.ir")
+
         if not r.ok :
             current_app.logger.error("Unable to connect to robonews.robofa.cscloud.ir/Robonews/v1/news/")
             return ResponseAPI.send(status_code=403, message="Unable to connect to robonews.robofa.cscloud.ir/Robonews/v1/news/")
