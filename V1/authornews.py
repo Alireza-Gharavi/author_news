@@ -14,10 +14,15 @@ class first(Resource) :
                      'period': {'description': 'One Day or One Week or One Month or Six Month (d/w/m/m6)', 'in': 'query', 'type': 'str'}})
     
     def get(self) :
-        # Anbaee : Please add exception handling for these parametrs
-        period = (request.args.get('period')).lower()                
-        currency = (request.args.get('currency')).lower()                       
-               
+        # Anbaee : Please add exception handling for these parametrs   ==> solved
+        try :
+            period = (request.args.get('period')).lower()                
+            currency = (request.args.get('currency')).lower()                       
+        except : 
+            current_app.logger.error("null Argument")
+            return ResponseAPI.send(status_code=400, message="can't handle arguments")
+
+
         
         current_time = int(datetime.datetime.now().timestamp())
         one_day = 86400
