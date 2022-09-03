@@ -36,6 +36,9 @@ class first(Resource) :
             period = current_time - 30 * one_day
         elif period == 'm6' :
             period = current_time - (6 * 30 * one_day)
+        else :
+            current_app.logger.error("bad value for period argument")
+            return ResponseAPI.send(status_code=400, message="value for period argument must be d/w/m/m6")
 
         url = "https://robonews.robofa.cscloud.ir/Robonews/v1/news/"
         payload = {'category':'Cryptocurrency', 'keywords':currency, 'from':period, 'to':current_time}
