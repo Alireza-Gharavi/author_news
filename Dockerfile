@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM registry.cscloud.ir/python:3.9
 
 COPY . /authornews
 WORKDIR /authornews
