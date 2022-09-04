@@ -1,0 +1,39 @@
+image: docker
+
+services:
+  - docker:dind
+
+build-staging:
+  stage: build
+  only:
+    - development
+  script:  
+    - docker login registry.cscloud.ir
+    - docker-compose -f docker-compose-staging.yml build --force-rm
+    - docker push $REGISTRY_URL/$GROUP_NAME/$STACK_BUILD:staging
+
+# build-production:
+#   stage: build
+#   only:
+#     - master
+#   script:
+#     - docker login registry.cscloud.ir
+#     - docker-compose -f docker-compose-prod.yml build --force-rm
+#     - docker push $REGISTRY_URL/$GROUP_NAME/$STACK_BUILD:production
+
+
+deploy-staging:
+  stage: deploy
+  only:
+    - development
+  script:
+    - docker stack deploy --prune -c docker-compose-staging.yml $STACK_STAGING --with-registry-auth    
+    - docker service update --force "$STACK_STAGING"_"$SERVICE1"
+
+# deploy-production:
+#   stage: deploy
+#   only:
+#     - master
+#   script:
+#     - docker stack deploy --prune -c docker-compose-prod.yml $STACK_PRODUCTION --with-registry-auth    
+#     - docker service update --force "$STACK_PRODUCTION"_"$SERVICE1"

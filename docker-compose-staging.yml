@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  app:
+    build: .
+    image: $REGISTRY_URL/$GROUP_NAME/$STACK_BUILD:staging
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik"
+        - "traefik.http.routers.$STACK_STAGING.rule=Host(`$URL_STAGING`)"
+        - "traefik.http.routers.$STACK_STAGING.entrypoints=websecure"
+        - "traefik.http.routers.$STACK_STAGING.tls=true"
+        - "traefik.http.routers.$STACK_STAGING.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.$STACK_STAGING.service=$STACK_STAGING"
+        - "traefik.http.services.$STACK_STAGING.loadbalancer.server.port=5000"
+      mode: replicated
+      replicas: 1
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true
