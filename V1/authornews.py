@@ -97,15 +97,15 @@ def stat_calculator(author_name, gk) :                                          
     author_stats['number_of_all_news'] = gk.author.count()[author_name]
     author_name_grouped = gk.get_group(author_name)
     try :
-        author_stats['positive_ratio'] = round((author_name_grouped.Positive.sum() / author_stats['number_of_all_news']), 4)             
+        author_stats['positive_ratio'] = round((author_name_grouped.Positive.sum() / author_stats['number_of_all_news']), 6)             
     except : 
         author_stats['positive_ratio'] = 0
     try :        
-        author_stats['negative_ratio'] = round((author_name_grouped.Negative.sum() / author_stats['number_of_all_news']), 4)             
+        author_stats['negative_ratio'] = round((author_name_grouped.Negative.sum() / author_stats['number_of_all_news']), 6)             
     except :    
         author_stats['negative_ratio'] = 0
     try :
-        author_stats['neutral_ratio']  = round((author_name_grouped.Neutral.sum()  / author_stats['number_of_all_news']), 4)             
+        author_stats['neutral_ratio']  = round((author_name_grouped.Neutral.sum()  / author_stats['number_of_all_news']), 6)             
     except :
         author_stats['neutral_ratio'] = 0
 
