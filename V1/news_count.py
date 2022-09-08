@@ -13,13 +13,13 @@ api = Namespace("news_counter", description='news counter routes')
 
 @api.route('/')
 class counter(Resource):
-    @api.doc(params={'category':{'description': 'Cryptocurrency or Forex or Commodities( cr/fo/co )', 'in':'query', 'type':'str'},
+    @api.doc(params={'category':{'description': 'Cryptocurrency/Forex/Commodities', 'in':'query', 'type':'str'},
                       'period':{'description': 'one day or one week or one month or six month ( d/w/m/m6 )', 'in':'query', 'type':'str'}
                     })
     
     def get(self):
         try:
-            category = (request.args.get('category')).lower()
+            category = request.args.get('category')
             period = (request.args.get('period')).lower()
         except :
             current_app.logger.error('null Argument')
@@ -84,14 +84,8 @@ def sort(res) :
 
 def param_calculator(current_time, category, period) :
     one_day = 86400
-
-    if category == 'cr' :
-        category = 'Cryptocurrency'
-    elif category == 'fo' :
-        category = 'Forex'
-    elif category == 'co' :
-        category = 'Commodities'
-    else :
+    l = ['Cryptocurrency', 'Forex', 'Commodities']
+    if category not in l :
         current_app.logger.error("bad value for category argument")
         category = 0
         #abort(400, 'value of category parameter must one of cr/fo/co')
