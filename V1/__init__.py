@@ -16,6 +16,7 @@ class MyApi(Api):
 
 
 from V1.authornews import api as authnews 
+from V1.news_count import api as news_count
 
 
 api = MyApi(blueprint,
@@ -25,3 +26,4 @@ api = MyApi(blueprint,
             )
 
 api.add_namespace(authnews)
+api.add_namespace(news_count)
