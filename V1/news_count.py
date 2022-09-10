@@ -88,8 +88,6 @@ def param_calculator(current_time, category, period) :
     if category not in l :
         current_app.logger.error("bad value for category argument")
         category = 0
-        #abort(400, 'value of category parameter must one of cr/fo/co')
-        #return ResponseAPI.send(status_code=400, message="value of category must be cr/fo/co")
 
     if period == 'd' :
         period = day_func() 
@@ -102,8 +100,6 @@ def param_calculator(current_time, category, period) :
     else :
         current_app.logger.error("bad value for period argument")
         period = 0
-        #abort(400, 'value for period argument must be d/w/m/m6')
-        #return ResponseAPI.send(status_code=400, message="value for period argument must be d/w/m/m6")
     
     return category, period
 
