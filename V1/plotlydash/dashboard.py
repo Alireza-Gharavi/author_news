@@ -5,7 +5,7 @@ import pandas as pd
 
 def init_dashboard(server):
 
-    def data(category='Cryptocurrency', period='w'):                            # this function used for providing data for graph
+    def data(category='Cryptocurrency', period='w'):                            # this function used for providing data for graphh
         url = 'https://api.staging.authornews.robofanews.cscloud.ir/AuthorNews/v1/news_counter/'
         payload = {'category' : category, 'period' : period}
 
