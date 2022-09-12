@@ -8,21 +8,24 @@ def init_dashboard(server):
     def data(category='Cryptocurrency', period='w'):                            # this function used for providing data for graphh
         url = 'https://api.staging.authornews.robofanews.cscloud.ir/AuthorNews/v1/news_counter/'
         payload = {'category' : category, 'period' : period}
+        try :
+            res = requests.get(url,params=payload)
 
-        res = requests.get(url,params=payload)
+            df = pd.DataFrame()
+            dic = res.json()['data']
 
-        df = pd.DataFrame()
-        dic = res.json()['data']
+            if res.json()['data'] == None :
+                df['authors'] = 'NO ONE'
+                df['number_of_news'] = 0
+                return df
 
-        if res.json()['data'] == None :
-            df['authors'] = 'NO ONE'
-            df['number_of_news'] = 0
-            return df
+            df['authors'] = dic.keys()
+            df['number_of_news'] = dic.values()
 
-        df['authors'] = dic.keys()
-        df['number_of_news'] = dic.values()
-
-        return df.loc[:20]
+            return df.loc[:20]
+        except :
+            print(f'unable to access {url} api')
+            exit(1)
 
     df = data()
 
