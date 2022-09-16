@@ -10,14 +10,16 @@ api = Namespace('stat_calculator', description='authornews routes')
 
 @api.route('/')
 class first(Resource) :
-    @api.doc(params={'currency': {'description': 'currency name (e.x. bitcoin)', 'in': 'query', 'type': 'str'},
-                     'period': {'description': 'One Day or One Week or One Month or Six Month (d/w/m/m6)', 'in': 'query', 'type': 'str'}})
+    @api.doc(params={'category':{'description': 'Cryptocurrency/Forex/Commodities', 'in':'query', 'type':'str', 'default': 'Cryptocurrency'},
+                     'currency/keyword': {'description': 'currency name (e.x. bitcoin) or "all" keyword', 'in': 'query', 'type': 'str', 'default': 'all'},
+                     'period': {'description': 'One Day or One Week or One Month or Six Month (d/w/m/m6)', 'in': 'query', 'type': 'str', 'default': 'w'}})
     
     def get(self) :
         # Anbaee : Please add exception handling for these parametrs   ==> solved
         try :
+            category = request.args.get('category')
             period = (request.args.get('period')).lower()                
-            currency = (request.args.get('currency')).lower()                       
+            currency = (request.args.get('currency/keyword')).lower()                  
         except : 
             current_app.logger.error("null Argument")
             return ResponseAPI.send(status_code=400, message="can't handle arguments")
@@ -40,8 +42,14 @@ class first(Resource) :
             current_app.logger.error("bad value for period argument")
             return ResponseAPI.send(status_code=400, message="value for period argument must be d/w/m/m6")
 
+
+        l = ['Cryptocurrency', 'Forex', 'Commodities']
+        if category not in l :
+            current_app.logger.error("bad value for category argument")
+            return ResponseAPI.send(status_code=400, message="value for category argument is not correct")
+
         url = "https://robonews.robofa.cscloud.ir/Robonews/v1/news/"
-        payload = {'category':'Cryptocurrency', 'keywords':currency, 'from':period, 'to':current_time}
+        payload = {'category':category, 'keywords':currency, 'from':period, 'to':current_time}
         
         try :
             r = requests.get(url,params=payload)           

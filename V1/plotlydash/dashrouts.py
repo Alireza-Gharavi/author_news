@@ -1,5 +1,6 @@
 import dash
 from flask.helpers import get_root_path
+import dash_bootstrap_components as dbc
 
 from V1.plotlydash.layout import Layout
 from V1.plotlydash.callbacks import register_callbacks
@@ -7,7 +8,7 @@ from V1.plotlydash.callbacks import register_callbacks
 def register_dashapp(app, title, base_pathname, layout, register_callbacks_fun):
     my_dashapp = dash.Dash(__name__,
                            server=app,
-                           url_base_pathname=f'/{base_pathname}/')
+                           url_base_pathname=f'/{base_pathname}/', external_stylesheets=[dbc.themes.DARKLY])
 
     with app.app_context():
         my_dashapp.title = title
