@@ -43,6 +43,7 @@ def register_callbacks(dashapp):
         Output('fig10', 'figure'),
         Output('fig9', 'figure'),
         Output('fig13', 'figure'),
+        Output('fig14', 'figure'),
         Input('period-slider', 'value'),
         Input('keyword_input', 'value'),
         Input('category-dropdown', 'value'))
@@ -153,7 +154,7 @@ def register_callbacks(dashapp):
 
 
         fig9 = px.pie(weights_df, values='ratios', names='names', hole=0.3, 
-                     color_discrete_sequence=['SlateBlue', 'DarkOliveGreen', 'OrangeRed'])
+                     color_discrete_sequence=['SlateBlue', 'OrangeRed', 'DarkOliveGreen'])
         
         fig9.update_traces(textinfo="percent+label", marker=dict(line=dict(color='#000000', width=4)), rotation=90)
         fig9.update_layout(template='ggplot2', paper_bgcolor='rgb(211, 211, 211)', plot_bgcolor='rgb(211, 211, 211)',
@@ -185,10 +186,41 @@ def register_callbacks(dashapp):
 
         df13 = pd.DataFrame(dit)
 
-        fig13 = px.sunburst(df13, path=['parents','character'], values='values', color_discrete_sequence=px.colors.sequential.Magma)
+        fig13 = px.sunburst(df13, path=['parents','character'], values='values', color='character', color_discrete_map={'Positive':'DarkOliveGreen', 'Neutral':'SlateBlue' , 'Negative':'OrangeRed'} ,color_discrete_sequence=px.colors.sequential.Brwnyl)
         fig13.update_layout(template='ggplot2', paper_bgcolor='rgb(211, 211, 211)', plot_bgcolor='rgb(211, 211, 211)')
+
 
 #----------------------------------------------------------------------------------------------------------
 
+        cons = 5
 
-        return fig1, fig6, fig7, fig8, fig12, fig4, fig10, fig9, fig13
+        vals = [[ df['number_of_positive_news'][i], df['number_of_negative_news'][i]] for i in range(cons)]
+        parns = [ [df['author'][i], df['author'][i]] for i in range(cons) ]
+
+        t_vals = []
+        t_parns = []
+
+        for i in vals:
+            for j in i :
+                t_vals.append(j)
+
+        for i in parns:
+            for j in i:
+                t_parns.append(j)
+
+        dit = dict(
+            character=[ 'Positive','Negative' ]*cons,
+            parents = t_parns,
+            values =  t_vals
+            )
+
+        df14 = pd.DataFrame(dit)
+
+
+        fig14 = px.sunburst(df14, path=['parents','character'], color='character', values='values', color_discrete_map={'Positive':'DarkOliveGreen','Negative':'OrangeRed'}, color_discrete_sequence=px.colors.sequential.Brwnyl)
+        fig14.update_layout(template='ggplot2', paper_bgcolor='rgb(211, 211, 211)', plot_bgcolor='rgb(211, 211, 211)')
+
+#----------------------------------------------------------------------------------------------------------
+
+        
+        return fig1, fig6, fig7, fig8, fig12, fig4, fig10, fig9, fig13, fig14

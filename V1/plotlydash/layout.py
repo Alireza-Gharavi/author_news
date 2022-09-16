@@ -103,4 +103,12 @@ Layout = html.Div(children =[html.Div([
                                 html.H4(children="Portion of Each Author + It's Corresponding Number of Each Weight", style={'textAlign': 'center'}),
                                 html.Br()
                             ]),
+                            html.Div([
+                                html.Br(),
+                                html.Br(),
+                                dcc.Graph(id='fig14', style={'textAlign': 'center','width': 1500, 'padding-left':'250px'}),
+                                html.Br(),
+                                html.H4(children="Like Previous Plot, But Just Considering Positve and Negative News", style={'textAlign': 'center'}),
+                                html.Br()
+                            ]),
                             ])
