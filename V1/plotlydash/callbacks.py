@@ -97,7 +97,7 @@ def register_callbacks(dashapp):
         
         
         fig8.add_bar(name="Number of Positive News", x=df[:15]['author'], y=df[:15]['number_of_positive_news'], opacity=0.9, marker_color='DarkOliveGreen')
-        fig8.add_bar(name="Number of Neutral Neews", x=df[:15]['author'], y=df[:15]['number_of_neutral_news'], opacity=0.6, marker_color='SlateBlue')
+        fig8.add_bar(name="Number of Neutral News", x=df[:15]['author'], y=df[:15]['number_of_neutral_news'], opacity=0.6, marker_color='SlateBlue')
         fig8.add_bar(name="Number of Negative News", x=df[:15]['author'], y=df[:15]['number_of_negative_news'], opacity=1, marker_color='OrangeRed')
         
         fig8.update_layout(template='ggplot2', paper_bgcolor='rgb(211, 211, 211)', plot_bgcolor='rgb(211, 211, 211)')
@@ -153,8 +153,9 @@ def register_callbacks(dashapp):
 
 
 
-        fig9 = px.pie(weights_df, values='ratios', names='names', hole=0.3, 
-                     color_discrete_sequence=['SlateBlue', 'OrangeRed', 'DarkOliveGreen'])
+        fig9 = px.pie(weights_df, values='ratios', names='names', color='names', hole=0.3, 
+             #color_discrete_sequence=['SlateBlue', 'DarkOliveGreen', 'OrangeRed'])
+             color_discrete_map={'Positve':'DarkOliveGreen', 'Neutral': 'SlateBlue', 'Negative':'OrangeRed'})
         
         fig9.update_traces(textinfo="percent+label", marker=dict(line=dict(color='#000000', width=4)), rotation=90)
         fig9.update_layout(template='ggplot2', paper_bgcolor='rgb(211, 211, 211)', plot_bgcolor='rgb(211, 211, 211)',
