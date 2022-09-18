@@ -164,6 +164,8 @@ def register_callbacks(dashapp):
 #----------------------------------------------------------------------------------------------------------
 
         cons = 5
+        if len(df['number_of_positive_news'] < cons):
+            cons = len(df['number_of_positive_news'])
 
         vals = [[ df['number_of_positive_news'][i], df['number_of_neutral_news'][i], df['number_of_negative_news'][i]] for i in range(cons)]
         parns = [ [df['author'][i], df['author'][i], df['author'][i]] for i in range(cons) ]
@@ -194,6 +196,8 @@ def register_callbacks(dashapp):
 #----------------------------------------------------------------------------------------------------------
 
         cons = 5
+        if len(df['number_of_positive_news'] < cons):
+            cons = len(df['number_of_positive_news'])
 
         vals = [[ df['number_of_positive_news'][i], df['number_of_negative_news'][i]] for i in range(cons)]
         parns = [ [df['author'][i], df['author'][i]] for i in range(cons) ]
